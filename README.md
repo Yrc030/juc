@@ -1,46 +1,62 @@
 # JUC
 
-## 进程
 
-### 概述
 
-进程：程序是静止的，进程实体的运行过程就是进程，是系统进行**资源分配的基本单位**
+
+
+## 进程与线程
+
+
+
+### 进程
+
+程序由指令和数据组成，但这些指令要运行，数据要读写，就必须将指令加载至 CPU，数据加载至内存。在指令运行过程中还需要用到磁盘、网络等设备。进程就是用来加载指令、管理内存、管理 IO 的，。当一个程序被运行，从磁盘加载这个程序的代码至内存，这时就开启了一个进程。
+
+进程就可以视为程序的一个实例。大部分程序可以同时运行多个实例进程（例如记事本、画图、浏览器等），也有的程序只能启动一个实例进程（例如网易云音乐、360 安全卫士等）  
 
 进程的特征：并发性、异步性、动态性、独立性、结构性
 
-**线程**：线程是属于进程的，是一个基本的 CPU 执行单元，是程序执行流的最小单元。线程是进程中的一个实体，是系统**独立调度的基本单位**，线程本身不拥有系统资源，只拥有一点在运行中必不可少的资源，与同属一个进程的其他线程共享进程所拥有的全部资源
+### 线程
 
-关系：一个进程可以包含多个线程，这就是多线程，比如看视频是进程，图画、声音、广告等就是多个线程
+线程是属于进程的，是一个基本的 CPU 执行单元，是程序执行流的最小单元。线程是进程中的一个实体，是系统**独立调度的基本单位**，线程本身不拥有系统资源，只拥有一点在运行中必不可少的资源，与同属一个进程的其他线程共享进程所拥有的全部资源
 
-线程的作用：使多道程序更好的并发执行，提高资源利用率和系统吞吐量，增强操作系统的并发性能
+**关系**：一个进程可以包含多个线程，这就是多线程，比如看视频是进程，图画、声音、广告等就是多个线程
 
-并发并行：
+**线程的作用**：使多道程序更好的并发执行，提高资源利用率和系统吞吐量，增强操作系统的并发性能。
+
+### 区别
+
+线程具有许多传统进程所具有的特征，故又称为轻型进程(Light—Weight Process)或进程元；而把传统的进程称为重型进程(Heavy—Weight Process)，它相当于只有一个线程的任务。在引入了线程的操作系统中，通常一个进程都有若干个线程，至少包含一个线程。
+
+**根本区别**：进程是操作系统「资源分配」的基本单位，而线程是处理器「任务调度」和执行的基本单位
+
+**资源开销**：每个进程都有独立的代码和数据空间（程序上下文），程序之间的切换会有较大的开销；线程可以看做轻量级的进程，同一类线程共享代码和数据空间，每个线程都有自己独立的运行栈和程序计数器（PC），线程之间切换的开销小。
+
+**包含关系**：如果一个进程内有多个线程，则执行过程不是一条线的，而是多条线（线程）共同完成的；线程是进程的一部分，所以线程也被称为轻权进程或者轻量级进程。
+
+**内存分配**：同一进程的线程共享本进程的地址空间和资源，而进程之间的地址空间和资源是相互独立的
+
+**影响关系**：一个进程崩溃后，在保护模式下不会对其他进程产生影响，但是一个线程崩溃整个进程都死掉。所以多进程要比多线程健壮。
+
+**执行过程**：每个独立的进程有程序运行的入口. 顺序执行序列和程序出口。但是线程不能独立执行，必须依存在应用程序中，由应用程序提供多个线程执行控制，两者均可并发执行
+
+### 并发并行
 
 * 并行：在同一时刻，有多个指令在多个 CPU 上同时执行
 * 并发：在同一时刻，有多个指令在单个 CPU 上交替执行
 
-同步异步：
+### 同步异步
 
-* 需要等待结果返回，才能继续运行就是同步
-* 不需要等待结果返回，就能继续运行就是异步
-
-
+* 需要等待结果返回，才能继续运行就是**同步**
+* 不需要等待结果返回，就能继续运行就是**异步**
 
 参考视频：https://www.bilibili.com/video/BV16J411h7Rd
 
-笔记的整体结构依据视频编写，并随着学习的深入补充了很多知识
-
-
-
-***
-
-
-
 ### 对比
 
-线程进程对比：
+**线程进程对比：**
 
-* 进程基本上相互独立的，而线程存在于进程内，是进程的一个子集
+* 进程基本上相互独立的，而线程存在于进程内，是进程的一个子集。
 
 * 进程拥有共享的资源，如内存空间等，供其**内部的线程共享**
 
@@ -77,7 +93,9 @@
 
 
 
-## 线程
+## Java 线程
+
+
 
 ### 创建线程
 
@@ -95,22 +113,23 @@ Thread 构造器：
 * `public Thread(String name)`
 
 ```java
-public class ThreadDemo {
+/**
+ * 线程创建方式1：实现 Thread#run() 方法
+ */
+@Slf4j(topic = "c.CreateWay1")
+public class CreateWay1 {
     public static void main(String[] args) {
-        Thread t = new MyThread();
-        t.start();
-       	for(int i = 0 ; i < 100 ; i++ ){
-            System.out.println("main线程" + i)
-        }
-        // main线程输出放在上面 就变成有先后顺序了，因为是 main 线程驱动的子线程运行
-    }
-}
-class MyThread extends Thread {
-    @Override
-    public void run() {
-        for(int i = 0 ; i < 100 ; i++ ) {
-            System.out.println("子线程输出："+i)
-        }
+        // 创建线程对象
+        Thread t1 = new Thread("t1") {
+            @Override
+            public void run() {
+                log.debug("runing");
+            }
+        };
+        // 启动线程
+        t1.start();
+
+        log.debug("runing"); // 主线程
     }
 }
 ```
@@ -136,21 +155,17 @@ Thread 的构造器：
 * `public Thread(Runnable target, String name)`
 
 ```java
-public class ThreadDemo {
+/**
+ * 线程创建方式1：实现 Runnable 接口
+ */
+@Slf4j(topic = "c.CreateWay2")
+public class CreateWay2 {
     public static void main(String[] args) {
-        Runnable target = new MyRunnable();
-        Thread t1 = new Thread(target,"1号线程");
-		t1.start();
-        Thread t2 = new Thread(target);//Thread-0
-    }
-}
-
-public class MyRunnable implements Runnable{
-    @Override
-    public void run() {
-        for(int i = 0 ; i < 10 ; i++ ){
-            System.out.println(Thread.currentThread().getName() + "->" + i);
-        }
+        // 创建线程
+        Thread t1 = new Thread(() -> log.debug("running") , "t1");
+        // 启动线程
+        t1.start();
+        log.debug("running");
     }
 }
 ```
@@ -158,9 +173,10 @@ public class MyRunnable implements Runnable{
 **Thread 类本身也是实现了 Runnable 接口**，Thread 类中持有 Runnable 的属性，执行线程 run 方法底层是调用 Runnable#run：
 
 ```java
+// 源码
 public class Thread implements Runnable {
     private Runnable target;
-    
+    ...
     public void run() {
         if (target != null) {
           	// 底层调用的是 Runnable 的 run 方法
@@ -196,7 +212,7 @@ Runnable 方式的优缺点：
 
 实现 Callable 接口：
 
-1. 定义一个线程任务类实现 Callable 接口，申明线程执行的结果类型
+1. 定义一个线程任务类实现 Callable 接口，声明线程执行的结果类型
 2. 重写线程任务类的 call 方法，这个方法可以直接返回执行的结果
 3. 创建一个 Callable 的线程任务对象
 4. 把 Callable 的线程任务对象**包装成一个未来任务对象**
@@ -215,7 +231,7 @@ Runnable 方式的优缺点：
 
 优缺点：
 
-* 优点：同 Runnable，并且能得到线程执行的结果
+* 优点：同 Runnable，并且**能得到线程执行的结果**
 * 缺点：编码复杂
 
 ```java
@@ -239,6 +255,7 @@ public class MyCallable implements Callable<String> {
         return Thread.currentThread().getName() + "->" + "Hello World";
     }
 }
+   
 ```
 
 
@@ -251,28 +268,29 @@ public class MyCallable implements Callable<String> {
 
 ### 线程方法
 
-#### API
+#### Thread类常用API
 
-Thread 类 API：
 
-| 方法                                        | 说明                                                         |
-| ------------------------------------------- | ------------------------------------------------------------ |
-| public void start()                         | 启动一个新线程，Java虚拟机调用此线程的 run 方法              |
-| public void run()                           | 线程启动后调用该方法                                         |
-| public void setName(String name)            | 给当前线程取名字                                             |
-| public void getName()                       | 获取当前线程的名字<br />线程存在默认名称：子线程是 Thread-索引，主线程是 main |
-| public static Thread currentThread()        | 获取当前线程对象，代码在哪个线程中执行                       |
-| public static void sleep(long time)         | 让当前线程休眠多少毫秒再继续执行<br />**Thread.sleep(0)** : 让操作系统立刻重新进行一次 CPU 竞争 |
-| public static native void yield()           | 提示线程调度器让出当前线程对 CPU 的使用                      |
-| public final int getPriority()              | 返回此线程的优先级                                           |
-| public final void setPriority(int priority) | 更改此线程的优先级，常用 1 5 10                              |
-| public void interrupt()                     | 中断这个线程，异常处理机制                                   |
-| public static boolean interrupted()         | 判断当前线程是否被打断，清除打断标记                         |
-| public boolean isInterrupted()              | 判断当前线程是否被打断，不清除打断标记                       |
-| public final void join()                    | 等待这个线程结束                                             |
-| public final void join(long millis)         | 等待这个线程死亡 millis 毫秒，0 意味着永远等待               |
-| public final native boolean isAlive()       | 线程是否存活（还没有运行完毕）                               |
-| public final void setDaemon(boolean on)     | 将此线程标记为守护线程或用户线程                             |
+
+|    修饰符     | 返回值  | 方法名                    | 说明                                                         | 注意                                                         |
+| :-----------: | :-----: | ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+|               |  void   | start()                   | 启动一个新线程，Java虚拟机调用此线程的 run 方法              | start方法只是让线程进入就绪状态，是否运行取决于任务调度器。<br>每个线程对象的`start()`方法只能调用一次，否则会抛出`IllegalThreadStateException`异常 |
+|               |  void   | run()                     | 线程启动后调用该方法                                         | 如果在构造`Thread`对象时传入了`Runnable`实现类对象，则线程启动后会运行该对象的`run()`方法。<br>如果构造器未传入参数，则默认不执行任何操作（见`Thread#run()`方法的源码），可以继承`Thread`并重写`run`方法，来覆盖默认行为。 |
+|               |  void   | setName(String name)      | 给当前线程取名字                                             |                                                              |
+|               |  void   | getName()                 | 获取当前线程的名字<br />线程存在默认名称：子线程是 Thread-索引，主线程是 main |                                                              |
+|    static     | Thread  | currentThread()           | 获取当前线程对象，代码在哪个线程中执行                       |                                                              |
+|    static     |  void   | sleep(long time)          | 让当前线程休眠多少毫秒再继续执行<br />**Thread.sleep(0)** : 让操作系统立刻重新进行一次 CPU 竞争 |                                                              |
+| static native |  void   | yield()                   | 提示线程调度器让出当前线程对 CPU 的使用                      |                                                              |
+|     final     |   int   | getPriority()             | 返回此线程的优先级                                           |                                                              |
+|     final     |  void   | setPriority(int priority) | 更改此线程的优先级，常用 1 5 10                              | `java`中规定线程优先级是`1~10` 的整数，较大的优先级能提高该线程被`CPU`调度的机率 |
+|               |  State  | getState()                | 获取当前线程的状态                                           | State: NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED |
+|               |  void   | interrupt()               | 中断这个线程，异常处理机制                                   |                                                              |
+|               | boolean | isInterrupted()           | 判断当前线程是否被打断，不清除打断标记                       |                                                              |
+|    static     | boolean | interrupted()             | 判断当前线程是否被打断，清除打断标记                         |                                                              |
+|     fianl     |  void   | join()                    | 等待这个线程结束                                             |                                                              |
+|     final     |  void   | join(long millis)         | 等待这个线程死亡 millis 毫秒，0 意味着永远等待               |                                                              |
+| final native  | boolean | isAlive()                 | 线程是否存活（还没有运行完毕）                               |                                                              |
+|     fianl     |  void   | setDaemon(boolean on)     | 将此线程标记为守护线程或用户线程                             |                                                              |
 
 
 
@@ -280,15 +298,56 @@ Thread 类 API：
 
 
 
-#### run start
+##### run和start
 
-run：称为线程体，包含了要执行的这个线程的内容，方法运行结束，此线程随即终止。直接调用 run 是在主线程中执行了 run，没有启动新的线程，需要顺序执行
+```java
+/**
+ * 测试调用 start 和 run 方法的区别
+ */
+@Slf4j(topic = "c.StartAndRun")
+public class StartAndRun {
+    /**
+     * 用于测试: Thread#Run()
+     */
+    @Test
+    public void testRun() {
+        Thread t1 = new Thread("t1") {
+            @Override
+            public void run() {
+                log.debug("running...");
+            }
+        };
+        t1.run(); // 同步调用，仍然是 main 线程调用的 run 方法
+        log.debug("running...");
+    }
 
-start：使用 start 是启动新的线程，此线程处于就绪（可运行）状态，通过新的线程间接执行 run 中的代码
+
+    /**
+     * 用于测试: Thread#start()
+     */
+    @Test
+    public void testStart() {
+        Thread t2 = new Thread("t2") {
+            @Override
+            public void run() {
+                log.debug("running...");
+            }
+        };
+        t2.start(); // 异步调用，由t2线程调用run方法
+        log.debug("running...");
+    }
+}
+```
+
+
+
+`run()`：称为线程体，包含了要执行的这个线程的内容，方法运行结束，此线程随即终止。直接调用`run()`是在「主线程」中执行了`run()`，没有启动新的线程，需要顺序执行。
+
+`start()`：使用`start()`是启动新的线程，此线程处于就绪（可运行）状态，通过新的线程间接执行`run`中的代码的
 
 说明：**线程控制资源类**
 
-run() 方法中的异常不能抛出，只能 try/catch
+`run()`方法中的异常不能抛出，只能`try/catch`
 
 * 因为父类中没有抛出任何异常，子类不能比父类抛出更多的异常
 * **异常不能跨线程传播回 main() 中**，因此必须在本地进行处理
@@ -299,21 +358,75 @@ run() 方法中的异常不能抛出，只能 try/catch
 
 
 
-#### sleep yield
+##### sleep和yield
 
-sleep：
+###### sleep
 
-* 调用 sleep 会让当前线程从 `Running` 进入 `Timed Waiting` 状态（阻塞）
-* sleep() 方法的过程中，**线程不会释放对象锁**
-* 其它线程可以使用 interrupt 方法打断正在睡眠的线程，这时 sleep 方法会抛出 InterruptedException
+* 调用 `sleep()` 会让当前线程从`Running`进入`Timed Waiting`状态（阻塞）
+
+  ```java
+  @Slf4j(topic = "c.TestSleep")
+  public class TestSleep {
+  
+      /**
+       * 测试 sleep 前后线程状态的变化
+       */
+      @Test
+      public static void test1(String[] args) {
+          Thread t1 = new Thread("t1") {
+              @Override
+              public void run() {
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      log.debug("{} interrupted",Thread.currentThread().getName());
+                  }
+              }
+          };
+          log.debug("t1 status: {}", t1.getState());    // t1 status: NEW
+          t1.start();
+          log.debug("t1 status: {}", t1.getState());    // t1 status: RUNNABLE
+          try {
+              Thread.sleep(500);
+          } catch (InterruptedException e) {
+              log.debug("{} interrupted",Thread.currentThread().getName());
+          }
+          log.debug("t1 status: {}", t1.getState());   // t1 status: TIMED_WAITING
+      }
+  }
+  ```
+
+* `sleep()` 方法的过程中，**线程不会释放对象锁**
+
+* 其它线程可以使用 `interrupt` 方法打断正在睡眠的线程，这时 `sleep()` 方法会抛出 `InterruptedException`
+
 * 睡眠结束后的线程未必会立刻得到执行，需要抢占 CPU
-* 建议用 TimeUnit 的 sleep 代替 Thread 的 sleep 来获得更好的可读性
 
-yield：
+* **建议用 `TimeUnit#sleep`代替 `Thread#sleep()`来获得更好的可读性**
 
-* 调用 yield 会让提示线程调度器让出当前线程对 CPU 的使用
-* 具体的实现依赖于操作系统的任务调度器
-* **会放弃 CPU 资源，锁资源不会释放**
+  ```java
+  @SneakyThrows
+  @Test
+  public void test3() {
+      Thread t3 = new Thread("t3") {
+          @SneakyThrows
+          @Override
+          public void run() {
+              log.debug("enter sleep...");
+              TimeUnit.SECONDS.sleep(1);  // 睡眠 1s
+              log.debug("wake up");
+          }
+      };
+      t3.start();
+      t3.join();  // 不加 join，则 main 线程执行完毕后直接退出，不会输出 wake up
+  }
+  ```
+
+###### yield
+
+* 调用`yield()`会让提示线程调度器让出当前线程对 CPU 的使用，使得当前线程从`Running`进入`Runnable`状态。
+* 具体的实现依赖于操作系统的任务调度器。
+* **会放弃 CPU 资源，锁资源不会释放。**
 
 
 
@@ -321,9 +434,9 @@ yield：
 
 
 
-#### join
+##### join
 
-public final void join()：等待这个线程结束
+`public final void join()`：等待这个线程结束
 
 原理：调用者轮询检查线程 alive 状态，t1.join() 等价于：
 
@@ -365,7 +478,7 @@ public class Test {
             r = 10;
         });
         t1.start();
-        t1.join();//不等待线程执行结束，输出的10
+        t1.join();//等待线程执行结束，输出的10
         System.out.println(r);
     }
 }
@@ -377,9 +490,9 @@ public class Test {
 
 
 
-#### interrupt
+##### interrupt
 
-##### 打断线程
+###### 打断线程
 
 `public void interrupt()`：打断这个线程，异常处理机制
 
@@ -392,38 +505,45 @@ public class Test {
 * sleep、wait、join 方法都会让线程进入阻塞状态，打断线程**会清空打断状态**（false）
 
   ```java
-  public static void main(String[] args) throws InterruptedException {
-      Thread t1 = new Thread(()->{
+  // 案例1：sleep，wait, join 被 interrupt 打断时，会将打断标记重置为 false
+  private static void method1() throws InterruptedException {
+      Thread t1 = new Thread(() -> {
           try {
-              Thread.sleep(1000);
+              log.debug("sleep...");
+              Thread.sleep(5000);
           } catch (InterruptedException e) {
+              // sleep，wait, join 被打断后会在异常处理期间将打断标记置位 false;
               e.printStackTrace();
           }
       }, "t1");
+  
       t1.start();
-      Thread.sleep(500);
+      Thread.sleep(1000);
+      log.debug("interrupting...");
       t1.interrupt();
-      System.out.println(" 打断状态: {}" + t1.isInterrupted());// 打断状态: {}false
+      // Thread.sleep(1000);
+      // 如果输出在异常处理之前，则打断标记为true，如果输出在异常处理之后，则打断标记为false，可以通过打开上一行代码进行测试
+      log.debug("flag of interrupted sleep: {}", t1.isInterrupted());
   }
   ```
-
+  
 * 打断正常运行的线程：不会清空打断状态（true）
 
   ```java
-  public static void main(String[] args) throws Exception {
-      Thread t2 = new Thread(()->{
-          while(true) {
-              Thread current = Thread.currentThread();
-              boolean interrupted = current.isInterrupted();
-              if(interrupted) {
-                  System.out.println(" 打断状态: {}" + interrupted);//打断状态: {}true
+  // 案例2：正常运行的代码被打断时，打断标记为 true，不会重置
+  private static void method2() throws InterruptedException {
+      Thread t1 = new Thread(() -> {
+          for (; ; ) {
+              Thread ct = Thread.currentThread();
+              if (ct.isInterrupted()) {  // isInterrupted 调用后，不会重置打断标记
+                  log.debug("interrupted: {}", ct.isInterrupted());
                   break;
               }
           }
-      }, "t2");
-      t2.start();
-      Thread.sleep(500);
-      t2.interrupt();
+      }, "t1");
+      t1.start();
+      Thread.sleep(1000);
+      t1.interrupt();
   }
   ```
 
@@ -433,34 +553,39 @@ public class Test {
 
 
 
-##### 打断 park
+###### 打断 park
 
 park 作用类似 sleep，打断 park 线程，不会清空打断状态（true）
 
 ```java
-public static void main(String[] args) throws Exception {
+// 案例3：Thread.interrupted() 和 LockSupport.park()
+// LockSupport.park() 与 Thread#sleep() 方法类似，使当前线程进入休眠，除非打断标记为true。
+// Thread.interrupted() 会返回当前线程的打断标记，并重写置为 false。
+// 上面两个方法配合使用：
+private static void method3() throws InterruptedException {
     Thread t1 = new Thread(() -> {
-        System.out.println("park...");
+
+        log.debug("park1...");
         LockSupport.park();
-        System.out.println("unpark...");
-        System.out.println("打断状态：" + Thread.currentThread().isInterrupted());//打断状态：true
+        log.debug("unpark1...");
+        Thread ct = Thread.currentThread();
+        // log.debug("打断标记: {}", ct.isInterrupted());  // true，不重置为 false，后面再调用 park 则不会生效
+        log.debug("打断标记: {}", Thread.interrupted()); // true，重置为 false，后面再调用 park 依然生效
+
+        log.debug("park2...");
+        LockSupport.park();
+        log.debug("unpark2...");
+
     }, "t1");
+
+
     t1.start();
-    Thread.sleep(2000);
+    TimeUnit.SECONDS.sleep(1);
     t1.interrupt();
 }
 ```
 
-如果打断标记已经是 true, 则 park 会失效
 
-```java
-LockSupport.park();
-System.out.println("unpark...");
-LockSupport.park();//失效，不会阻塞
-System.out.println("unpark...");//和上一个unpark同时执行
-```
-
-可以修改获取打断状态方法，使用 `Thread.interrupted()`，清除打断标记
 
 LockSupport 类在 同步 → park-un 详解
 
@@ -470,7 +595,7 @@ LockSupport 类在 同步 → park-un 详解
 
 
 
-##### 终止模式
+###### 终止模式
 
 终止模式之两阶段终止模式：Two Phase Termination
 
@@ -533,45 +658,6 @@ class TwoPhaseTermination {
 
 ***
 
-
-
-#### daemon
-
-`public final void setDaemon(boolean on)`：如果是 true ，将此线程标记为守护线程 
-
-线程**启动前**调用此方法：
-
-```java
-Thread t = new Thread() {
-    @Override
-    public void run() {
-        System.out.println("running");
-    }
-};
-// 设置该线程为守护线程
-t.setDaemon(true);
-t.start();
-```
-
-用户线程：平常创建的普通线程
-
-守护线程：服务于用户线程，只要其它非守护线程运行结束了，即使守护线程代码没有执行完，也会强制结束。守护进程是**脱离于终端并且在后台运行的进程**，脱离终端是为了避免在执行的过程中的信息在终端上显示
-
-说明：当运行的线程都是守护线程，Java 虚拟机将退出，因为普通线程执行完后，JVM 是守护线程，不会继续运行下去
-
-常见的守护线程：
-
-* 垃圾回收器线程就是一种守护线程
-* Tomcat 中的 Acceptor 和 Poller 线程都是守护线程，所以 Tomcat 接收到 shutdown 命令后，不会等待它们处理完当前请求
-
-
-
-
-
-***
-
-
-
 #### 不推荐
 
 不推荐使用的方法，这些方法已过时，容易破坏同步代码块，造成线程死锁：
@@ -590,6 +676,50 @@ t.start();
 
 ***
 
+### 主线程和守护线程
+
+
+
+默认情况下，Java 进程需要等待所有线程都运行结束，才会结束。有一种特殊的线程叫做「守护线程」，只要其它「非守护线程」运行结束了，即使守护线程的代码没有执行完，也会强制结束。  
+
+`public final void setDaemon(boolean on)`：如果是 true ，将此线程标记为守护线程 
+
+线程「启动前」调用此方法：
+
+```java
+// 只有当所有「非守护线程」执行完毕后，java进程才会结束。
+public static void main(String[] args) {
+    Thread t1 = new Thread(() -> {
+        while (true) {
+            Thread ct = Thread.currentThread();
+            if (ct.isInterrupted()) {
+                break;
+            }
+        }
+        log.debug("end");
+    }, "t1");
+
+    t1.setDaemon(true); // 设置 t1 为守护线程
+    t1.start();
+    log.debug("end");
+}
+```
+
+
+
+用户线程：平常创建的普通线程
+
+守护线程：服务于用户线程，只要其它非守护线程运行结束了，即使守护线程代码没有执行完，也会强制结束。守护进程是**脱离于终端并且在后台运行的进程**，脱离终端是为了避免在执行的过程中的信息在终端上显示
+
+说明：当运行的线程都是守护线程，Java 虚拟机将退出，因为普通线程执行完后，JVM 是守护线程，不会继续运行下去
+
+常见的守护线程：
+
+* 垃圾回收器线程就是一种守护线程
+* Tomcat 中的 Acceptor 和 Poller 线程都是守护线程，所以 Tomcat 接收到 shutdown 命令后，不会等待它们处理完当前请求
+
+***
+
 
 
 ### 线程原理
@@ -599,18 +729,24 @@ t.start();
 Java Virtual Machine Stacks（Java 虚拟机栈）：每个线程启动后，虚拟机就会为其分配一块栈内存
 
 * 每个栈由多个栈帧（Frame）组成，对应着每次方法调用时所占用的内存
-* 每个线程只能有一个活动栈帧，对应着当前正在执行的那个方法
+* 每个线程只能有一个活动**栈帧**，对应着当前正在执行的那个方法
+* [栈帧图解](https://www.bilibili.com/video/BV16J411h7Rd?p=21&spm_id_from=pageDriver&vd_source=1c6a218df24b9f08b6dd48151a75b178)
 
-线程上下文切换（Thread Context Switch）：一些原因导致 CPU 不再执行当前线程，转而执行另一个线程
+
+
+**线程上下文切换**（Thread Context Switch）：一些原因导致 CPU 不再执行当前线程，转而执行另一个线程
 
 * 线程的 CPU 时间片用完
 * 垃圾回收
 * 有更高优先级的线程需要运行
-* 线程自己调用了 sleep、yield、wait、join、park 等方法
+* 线程自己调用了 `sleep、yield、wait、join、park` 等方法
+* [图解上下文切换（06:00 后）](https://www.bilibili.com/video/BV16J411h7Rd?p=21&spm_id_from=pageDriver&vd_source=1c6a218df24b9f08b6dd48151a75b178)
 
-程序计数器（Program Counter Register）：记住下一条 JVM 指令的执行地址，是线程私有的
 
-当 Context Switch 发生时，需要由操作系统保存当前线程的状态（PCB 中），并恢复另一个线程的状态，包括程序计数器、虚拟机栈中每个栈帧的信息，如局部变量、操作数栈、返回地址等
+
+**程序计数器**（Program Counter Register）：记住下一条 JVM 指令的执行地址，是线程私有的当 Context Switch 发生时，需要由操作系统保存当前线程的状态（保存在PCB进程控制块中），并恢复另一个线程的状态，包括程序计数器、虚拟机栈中每个栈帧的信息，如局部变量、操作数栈、返回地址等
+
+
 
 JVM 规范并没有限定线程模型，以 HotSopot 为例：
 
@@ -627,7 +763,7 @@ Java 中 main 方法启动的是一个进程也是一个主线程，main 方法�
 
 #### 线程调度
 
-线程调度指系统为线程分配处理器使用权的过程，方式有两种：协同式线程调度、抢占式线程调度（Java 选择）
+线程调度指系统为线程分配处理器使用权的过程，方式有两种：「协同式线程调度」、「抢占式线程调度」（Java 选择）
 
 协同式线程调度：线程的执行时间由线程本身控制
 
@@ -669,14 +805,67 @@ Java 提供了线程优先级的机制，优先级会提示（hint）调度器�
 
 ### 线程状态
 
-进程的状态参考操作系统：创建态、就绪态、运行态、阻塞态、终止态
+#### 五状态模型
+
+从「操作系统」层面来描述线程的状态，可以分为5种，称作「五状态模型」
+
+![image-20211204224132942](https://yrc-img.oss-cn-hangzhou.aliyuncs.com/img/image-20211204224132942.png)
+
+##### 创建状态
+
+- 创建进程时拥有PCB但其它资源尚未就绪的状态称为「创建状态」。
+
+- 其它资源：进程控制块、堆空间、栈空间…
+
+![image-20211204225423950](https://yrc-img.oss-cn-hangzhou.aliyuncs.com/img/image-20211204225423950.png)
+
+##### 就绪状态
+
+- 当进程被分配到除CPU以外的所有必要资源后，进程就进入了「就绪状态」。
+
+- 只要再获取到CPU的使用权，就可以立即运行。
+
+- 就绪队列
+
+  > 在一个系统中可以多个进程并发的执行，这就意味着当系统中有多个处于就绪状态的进程时，通常会排成一个队列，也称作**就绪队列**。
+
+  ![image-20211204224604997](https://yrc-img.oss-cn-hangzhou.aliyuncs.com/img/image-20211204224604997.png)
+
+##### 执行状态
+
+- 进程获得CPU资源时，其程序正在执行就称为「执行状态」。
+- 在单处理机（单核cpu）中，在某个时刻只能由一个进程是处于执行状态。
+
+##### 阻塞状态
+
+进程因为某种原因（如：其它设备未就绪而无法继续执行），从而放弃CPU的状态称为「阻塞状态」。
+
+- 阻塞队列
+
+  ![image-20211204225109513](https://yrc-img.oss-cn-hangzhou.aliyuncs.com/img/image-20211204225109513.png)
+
+![image-20211204225245976](https://yrc-img.oss-cn-hangzhou.aliyuncs.com/img/image-20211204225245976.png)
+
+##### 终止状态
+
+进程结束由系统清理或者归还PCB的状态称为「终止状态」。
+
+![image-20211204225520928](https://yrc-img.oss-cn-hangzhou.aliyuncs.com/img/image-20211204225520928.png)
+
+
+
+
+
+#### 六状态模型
+
+这是从 `Java API` 层面来描述的，根据 `Thread.State` 枚举，分为六种状态  
 
 线程由生到死的完整过程（生命周期）：当线程被创建并启动以后，既不是一启动就进入了执行状态，也不是一直处于执行状态，在 API 中 `java.lang.Thread.State` 这个枚举中给出了六种线程状态：
 
 | 线程状态                   | 导致状态发生条件                                             |
 | -------------------------- | ------------------------------------------------------------ |
 | NEW（新建）                | 线程刚被创建，但是并未启动，还没调用 start 方法，只有线程对象，没有线程特征 |
-| Runnable（可运行）         | 线程可以在 Java 虚拟机中运行的状态，可能正在运行自己代码，也可能没有，这取决于操作系统处理器，调用了 t.start() 方法：就绪（经典叫法） |
+| Runnable（可运行）         | 当调用了 start() 方法之后，线程可以在 Java 虚拟机中运行的状态。注意，Java API 层面的 RUNNABLE 状态涵盖了**操作系统**层面的「就绪状态」、「执行状态」和「阻塞状态」（由于 BIO 导致的线程阻塞，在 Java 里无法区分，仍然认为是可运行） |
 | Blocked（阻塞）            | 当一个线程试图获取一个对象锁，而该对象锁被其他的线程持有，则该线程进入 Blocked 状态；当该线程持有锁时，该线程将变成 Runnable 状态 |
 | Waiting（无限等待）        | 一个线程在等待另一个线程执行一个（唤醒）动作时，该线程进入 Waiting 状态，进入这个状态后不能自动唤醒，必须等待另一个线程调用 notify 或者 notifyAll 方法才能唤醒 |
 | Timed Waiting （限期等待） | 有几个方法有超时参数，调用将进入 Timed Waiting 状态，这一状态将一直保持到超时期满或者接收到唤醒通知。带有超时参数的常用方法有 Thread.sleep 、Object.wait |
@@ -2788,7 +2977,7 @@ Java 内存模型具备一些先天的“有序性”，即不需要通过任何
 
 #### 终止模式
 
-终止模式之两阶段终止模式：停止标记用 volatile 是为了保证该变量在多个线程之间的可见性
+终止模式之「两阶段终止模式」：停止标记用 volatile 是为了保证该变量在多个线程之间的可见性
 
 ```java
 class TwoPhaseTermination {
