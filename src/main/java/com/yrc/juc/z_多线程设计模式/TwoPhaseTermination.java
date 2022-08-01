@@ -1,12 +1,9 @@
-package com.yrc.juc.design_patterns;
+package com.yrc.juc.z_多线程设计模式;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Description: 两阶段终止模式
- * User: joker
- * Date: 2022-07-26-17:05
- * Time: 17:05
+ * 两阶段终止模式
  */
 @Slf4j(topic = "c.TwoStageTermination")
 public class TwoPhaseTermination {
@@ -26,8 +23,8 @@ public class TwoPhaseTermination {
             while (true) {
                 Thread ct = Thread.currentThread();
                 if (ct.isInterrupted()) {
-                    log.debug("{} has been interrupted and processing some working", ct.getName());
-                    // some working
+                    log.debug("{} has been interrupted and processing some work", ct.getName());
+                    // some work
                     return;
                 }
                 try {

@@ -16,8 +16,8 @@ public class TestInterrupt {
 
     public static void main(String[] args) throws InterruptedException {
         // method1();  // 案例1
-        //method2();  // 案例2
-        method3();
+        method2();  // 案例2
+        //method3();
     }
 
     // 案例1：sleep，wait, join 被 interrupt 打断时，会将打断标记重置为 false
@@ -68,8 +68,8 @@ public class TestInterrupt {
             LockSupport.park();
             log.debug("unpark1...");
             Thread ct = Thread.currentThread();
-            // log.debug("打断标记: {}", ct.isInterrupted());  // true，不重置为 false，后面再调用 park 则不会生效
-            log.debug("打断标记: {}", Thread.interrupted()); // true，重置为 false，后面再调用 park 依然生效
+            log.debug("打断标记: {}", ct.isInterrupted());  // true，不重置为 false，后面再调用 park 则不会生效
+            //log.debug("打断标记: {}", Thread.interrupted()); // true，重置为 false，后面再调用 park 依然生效
 
             log.debug("park2...");
             LockSupport.park();
